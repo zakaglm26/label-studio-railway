@@ -2,7 +2,14 @@
 set -euo pipefail
 
 PORT_VALUE="${PORT:-8080}"
-DATA_DIR="${LABEL_STUDIO_DATA_DIR:-/var/lib/label-studio}"
+
+# Prefer Railway volume mount if present, otherwise use a local writable dir.
+DEFAULT_DATA_DIR="./label-studio-data"
+if [[ -d "/data" ]]; then
+  DEFAULT_DATA_DIR="/data/label-studio"
+fi
+
+DATA_DIR="${LABEL_STUDIO_DATA_DIR:-$DEFAULT_DATA_DIR}"
 
 mkdir -p "$DATA_DIR"
 
@@ -19,7 +26,7 @@ if [[ -n "${LABEL_STUDIO_PASSWORD:-}" ]]; then
 fi
 
 label-studio start \
-  --internal-host 0.0.0.0 \
+  --host 0.0.0.0 \
   --port "${PORT_VALUE}" \
   --data-dir "${DATA_DIR}" \
   --no-browser \
